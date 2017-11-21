@@ -1,11 +1,10 @@
 import argparse
-
+import queue
 """
 ======================================================================
   Complete the following function.
 ======================================================================
 """
-
 def solve(num_wizards, num_constraints, wizards, constraints):
     """
     Write your algorithm here.
@@ -14,26 +13,30 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         num_constraints: Number of constraints
         wizards: An array of wizard names, in no particular order
         constraints: A 2D-array of constraints, 
-                     where constraints[0] may take the form ['A', 'B', 'C']i
+                     where constraints[0] may take the form ['A', 'B', 'C']
 
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    create dictionary where dictionary[wizard] returns the set of all constraints involving that wizard:
-    add all constraints to queue
-    result = [all wizards]
-    while queue is not empty:
-        constraint = queue.pop()
-        constraint = true
+    dict = {}
+    q = queue.Queue()
+    for constraint in constraints:
+        dict[constraint[0]] = constraint
+        dict[constraint[1]] = constraint
+        dict[constraint[2]] = constraint
+        q.put(constraint)
+    while not q.empty():
+        constraint = q.get()
+        enforce = true
         if w1 < w2:
             if not (w3 < w1 or w3 > w2):
-                constraint = false
+                enforce = false
 
         else:
             if not (w3 > w1 or w3 < w2):
-                constraint = false
+                enforce = false
 
-        if constraint is false:
+        if enforce is false:
             swap w3 w1
             w1Constraints = dictionary[w1]
             w2Constraints = dictionary[w2]
