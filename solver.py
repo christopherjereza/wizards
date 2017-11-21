@@ -19,7 +19,35 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    return []
+    create dictionary where dictionary[wizard] returns the set of all constraints involving that wizard:
+    add all constraints to queue
+    result = [all wizards]
+    while queue is not empty:
+        constraint = queue.pop()
+        constraint = true
+        if w1 < w2:
+            if not (w3 < w1 or w3 > w2):
+                constraint = false
+
+        else:
+            if not (w3 > w1 or w3 < w2):
+                constraint = false
+
+        if constraint is false:
+            swap w3 w1
+            w1Constraints = dictionary[w1]
+            w2Constraints = dictionary[w2]
+            w3Constraints = dictionary[w3]
+            for c in w1Constraints:
+                if c not in queue:
+                    queue.add(c)
+            for c in w2Constraints:
+                if c not in queue:
+                    queue.add(c)
+            for c in w3Constraints:
+                if c not in queue:
+                    queue.add(c)
+    return result
 
 """
 ======================================================================
