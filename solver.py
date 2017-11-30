@@ -1,5 +1,6 @@
 import argparse
 import queue
+import random
 """
 ======================================================================
   Complete the following function.
@@ -18,39 +19,50 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    dict = {}
+    d = {}
+    age = {}
+    index = 0
+    for wizard in wizards:
+        age[wizard] = index
+        index++
+        d[wizard] = [[]]
     q = queue.Queue()
     for constraint in constraints:
-        dict[constraint[0]] = constraint
-        dict[constraint[1]] = constraint
-        dict[constraint[2]] = constraint
+        w1 = constraint[0]
+        w2 = constraint[1]
+        w3 = constraint[2]
+        d[w1].append(constraint)
+        d[w2].append(constraint)
+        d[w3].append(constraint)
         q.put(constraint)
     while not q.empty():
-        constraint = q.get()
+        constraint = q.pop()
         enforce = true
-        if w1 < w2:
-            if not (w3 < w1 or w3 > w2):
+        w1 = constraint[0]
+        w2 = constraint[1]
+        w3 = constraint[2]
+        if age[w1] < age[w2]:
+            if age[w3] > age[w1] and age[w3] < age[w2]:
                 enforce = false
-
         else:
-            if not (w3 > w1 or w3 < w2):
+            if age[w3] < age[w1] and age[w3] > age[w2]:
                 enforce = false
 
         if enforce is false:
-            swap w3 w1
-            w1Constraints = dictionary[w1]
-            w2Constraints = dictionary[w2]
-            w3Constraints = dictionary[w3]
-            for c in w1Constraints:
-                if c not in queue:
-                    queue.add(c)
-            for c in w2Constraints:
+            wizToSwap = random.choice([w1, w2])
+            temp = age[w3]
+            age[w3] = age[wizToSwap]
+            age[wizToSwap] = temp
+            w3Constraints = d[w3]
+            wizToSwapConstraints = d[wizToSwap] 
+            for c in wizToSwapConstraints:
                 if c not in queue:
                     queue.add(c)
             for c in w3Constraints:
                 if c not in queue:
                     queue.add(c)
-    return result
+    sorted(d, key=d.get)
+    return d.keys()
 
 """
 ======================================================================
