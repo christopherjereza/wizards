@@ -1,63 +1,45 @@
 import argparse
-import Queue as queue
 import random
+import math
+import copy
+import time
 """
 ======================================================================
   Complete the following function.
 ======================================================================
 """
-def enforce(constraint, age):
-    w1 = constraint[0]
-    w2 = constraint[1]
-    w3 = constraint[2]
-    if age[w1] < age[w2]:
-        if age[w3] < age[w1] or age[w3] > age[w2]:
-            return False
-    else:
-        if age[w3] > age[w1] or age[w3] < age[w2]:
-            return False
-    return True
-
-def validate(solution, constraint):
-    w1 = constraint[0]
-    w2 = constraint[1]
-    w3 = constraint[2]
-    if solution.index(w1) < solution.index(w2):
-        if solution.index(w3) < solution.index(w1) or solution.index(w3) > solution.index(w2):
-            return False
-    else:
-        if solution.index(w3) > solution.index(w1) or solution.index(w3) < solution.index(w2):
-            return False
-    return True
-
 def cost(solution, constraints):
-    cost = 0
-    for constraint in constraints:
-        if not validate(solution, constraint):
-            cost += 1
-    return cost
+    return validator(solution, constraints)
 
 def neighbor(solution):
-    wizToMove = solution.pop(random.randint(0, len(solution) - 1))
-    solution.insert(random.randint(0, len(solution)), wizToMove)
-    return solution
+    temp = copy.deepcopy(solution)
+    wizToMove = temp.pop(random.randrange(len(temp)))
+    temp.insert(random.randrange(len(temp)), wizToMove)
+    return temp
 
 def acceptance_probability(old_cost, new_cost, T):
-    exponent = float((old_cost - new_cost) / float(T))
-    alpha = float(float(2.71828) ** float(exponent))
-    # print alpha
-    return alpha
+    if new_cost < old_cost:
+        return 1.0
+    else:
+        return math.exp((old_cost - new_cost) / T)
+
 
 def anneal(num_wizards, num_constraints, wizards, constraints):
+    startTime = time.time()
     random.shuffle(wizards)
     solution = wizards
     old_cost = cost(solution, constraints)
+    new_cost = None
     T = 1.0
-    T_min = 0.00001
-    alpha = 0.99
+    T_min = 0.0001
+    alpha = 0.9
     while T > T_min:
+        currTime = time.time()
+        if currTime - startTime > num_wizards*3:
+            print new_cost
+            return None
         i = 1
-        while i <= 100:
+        while i <= 6000:
             new_solution = neighbor(solution)
             new_cost = cost(new_solution, constraints)
             if new_cost == 0:
@@ -68,19 +50,26 @@ def anneal(num_wizards, num_constraints, wizards, constraints):
                 old_cost = new_cost
             i += 1
         T = T*alpha
+    print currTime - startTime
     return solution
 
 def validator(wizards, constraints):
-    i = 0
-    for wizard in wizards:
-        for constraint in constraints:
-            wizard1 = constraint[0]
-            wizard2 = constraint[1]
-            wizard3 = constraint[2]
-            if wizard == wizard3:
-                if wizards.index(str(wizard)) not in range(wizards.index(str(wizard1)), wizards.index(str(wizard2))):
-                    i += 1
-    return i // len(constraints)
+    count = 0
+    for constraint in constraints:
+        wiz1 = wizards.index(constraint[0])
+        wiz2 = wizards.index(constraint[1])
+        wiz3 = wizards.index(constraint[2])
+        if wiz1 < wiz2:
+            if wiz3 > wiz1 and wiz3 < wiz2:
+                continue
+            else:
+                count += 1
+        if wiz2 < wiz1:
+            if wiz3 < wiz1 and wiz3 > wiz2:
+                continue
+            else:
+                count += 1
+    return len(constraints) - count
 
 def solve(num_wizards, num_constraints, wizards, constraints):
     """
@@ -89,33 +78,17 @@ def solve(num_wizards, num_constraints, wizards, constraints):
         num_wizards: Number of wizards
         num_constraints: Number of constraints
         wizards: An array of wizard names, in no particular order
-        constraints: A 2D-array of constraints, 
+        constraints: A 2D-array of constraints,
                      where constraints[0] may take the form ['A', 'B', 'C']
 
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    return anneal(num_wizards, num_constraints, wizards, constraints)
-    random.shuffle(wizards)
-    complete = False
-    while not complete:
-        for wizard in wizards:
-            for constraint in constraints:
-                if wizard == constraint[2]:
-                    if (wizards.index(str(constraint[0])) > wizards.index(str(constraint[2]))
-                        and wizards.index(str(constraint[1])) < wizards.index(str(constraint[2]))) or (wizards.index(str(constraint[0])) < wizards.index(str(constraint[2]))
-                        and wizards.index(str(constraint[1])) > wizards.index(str(constraint[2]))):
-                        continue
-                    else:
-                        to_shuffle = wizards[wizards.index(str(wizard)):]
-                        wizards = wizards[0:wizards.index(str(wizard))]
-                        random.shuffle(to_shuffle)
-                        wizards += to_shuffle 
-        if validator(wizards, constraints) == 1:
-            return wizards
-        else:
-            random.shuffle(wizards)
-
+    ret = None
+    while ret is None:
+        print 'attempt'
+        ret = anneal(num_wizards, num_constraints, wizards, constraints)
+    return ret
 
 """
 ======================================================================
@@ -134,7 +107,7 @@ def read_input(filename):
             constraints.append(c)
             for w in c:
                 wizards.add(w)
-                
+
     wizards = list(wizards)
     return num_wizards, num_constraints, wizards, constraints
 
