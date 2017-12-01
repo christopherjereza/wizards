@@ -1,11 +1,87 @@
 import argparse
-import queue
+import Queue as queue
 import random
 """
 ======================================================================
   Complete the following function.
 ======================================================================
 """
+def enforce(constraint, age):
+    w1 = constraint[0]
+    w2 = constraint[1]
+    w3 = constraint[2]
+    if age[w1] < age[w2]:
+        if age[w3] < age[w1] or age[w3] > age[w2]:
+            return False
+    else:
+        if age[w3] > age[w1] or age[w3] < age[w2]:
+            return False
+    return True
+
+def validate(solution, constraint):
+    w1 = constraint[0]
+    w2 = constraint[1]
+    w3 = constraint[2]
+    if solution.index(w1) < solution.index(w2):
+        if solution.index(w3) < solution.index(w1) or solution.index(w3) > solution.index(w2):
+            return False
+    else:
+        if solution.index(w3) > solution.index(w1) or solution.index(w3) < solution.index(w2):
+            return False
+    return True
+
+def cost(solution, constraints):
+    cost = 0
+    for constraint in constraints:
+        if not validate(solution, constraint):
+            cost += 1
+    return cost
+
+def neighbor(solution):
+    wizToMove = solution.pop(random.randint(0, len(solution) - 1))
+    solution.insert(random.randint(0, len(solution)), wizToMove)
+    return solution
+
+def acceptance_probability(old_cost, new_cost, T):
+    exponent = float((old_cost - new_cost) / float(T))
+    alpha = float(float(2.71828) ** float(exponent))
+    # print alpha
+    return alpha
+
+def anneal(num_wizards, num_constraints, wizards, constraints):
+    random.shuffle(wizards)
+    solution = wizards
+    old_cost = cost(solution, constraints)
+    T = 1.0
+    T_min = 0.00001
+    alpha = 0.99
+    while T > T_min:
+        i = 1
+        while i <= 100:
+            new_solution = neighbor(solution)
+            new_cost = cost(new_solution, constraints)
+            if new_cost == 0:
+                return new_solution
+            ap = acceptance_probability(old_cost, new_cost, T)
+            if ap > random.random():
+                solution = new_solution
+                old_cost = new_cost
+            i += 1
+        T = T*alpha
+    return solution
+
+def validator(wizards, constraints):
+    i = 0
+    for wizard in wizards:
+        for constraint in constraints:
+            wizard1 = constraint[0]
+            wizard2 = constraint[1]
+            wizard3 = constraint[2]
+            if wizard == wizard3:
+                if wizards.index(str(wizard)) not in range(wizards.index(str(wizard1)), wizards.index(str(wizard2))):
+                    i += 1
+    return i // len(constraints)
+
 def solve(num_wizards, num_constraints, wizards, constraints):
     """
     Write your algorithm here.
@@ -19,50 +95,27 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    d = {}
-    age = {}
-    index = 0
-    for wizard in wizards:
-        age[wizard] = index
-        index++
-        d[wizard] = [[]]
-    q = queue.Queue()
-    for constraint in constraints:
-        w1 = constraint[0]
-        w2 = constraint[1]
-        w3 = constraint[2]
-        d[w1].append(constraint)
-        d[w2].append(constraint)
-        d[w3].append(constraint)
-        q.put(constraint)
-    while not q.empty():
-        constraint = q.pop()
-        enforce = true
-        w1 = constraint[0]
-        w2 = constraint[1]
-        w3 = constraint[2]
-        if age[w1] < age[w2]:
-            if age[w3] > age[w1] and age[w3] < age[w2]:
-                enforce = false
+    return anneal(num_wizards, num_constraints, wizards, constraints)
+    random.shuffle(wizards)
+    complete = False
+    while not complete:
+        for wizard in wizards:
+            for constraint in constraints:
+                if wizard == constraint[2]:
+                    if (wizards.index(str(constraint[0])) > wizards.index(str(constraint[2]))
+                        and wizards.index(str(constraint[1])) < wizards.index(str(constraint[2]))) or (wizards.index(str(constraint[0])) < wizards.index(str(constraint[2]))
+                        and wizards.index(str(constraint[1])) > wizards.index(str(constraint[2]))):
+                        continue
+                    else:
+                        to_shuffle = wizards[wizards.index(str(wizard)):]
+                        wizards = wizards[0:wizards.index(str(wizard))]
+                        random.shuffle(to_shuffle)
+                        wizards += to_shuffle 
+        if validator(wizards, constraints) == 1:
+            return wizards
         else:
-            if age[w3] < age[w1] and age[w3] > age[w2]:
-                enforce = false
+            random.shuffle(wizards)
 
-        if enforce is false:
-            wizToSwap = random.choice([w1, w2])
-            temp = age[w3]
-            age[w3] = age[wizToSwap]
-            age[wizToSwap] = temp
-            w3Constraints = d[w3]
-            wizToSwapConstraints = d[wizToSwap] 
-            for c in wizToSwapConstraints:
-                if c not in queue:
-                    queue.add(c)
-            for c in w3Constraints:
-                if c not in queue:
-                    queue.add(c)
-    sorted(d, key=d.get)
-    return d.keys()
 
 """
 ======================================================================
