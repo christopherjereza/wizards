@@ -19,12 +19,52 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
+    res = random.shuffle(wizards)
+    neighbors = [[]]
+    cost = 0
+    while !validate(res):
+        for c in constraints:
+            wiz1 = c[0]
+            wiz2 = c[1]
+            wiz3 = c[2]
+            if res.index(wiz3) > res.index(wiz1) and res.index(wiz3) < res.index(wiz2):
+                cost += 1
+            else:
+
+            elif res.index(wiz3) < res.index(wiz1) and res.index(wiz3) > res.index(wiz2):
+                cost += 1
+    return res
+
+def validate(ordering, constraints):
+    for c in constraints:
+        wiz1 = c[0]
+        wiz2 = c[1]
+        wiz3 = c[2]
+        if res.index(wiz3) > res.index(wiz1) and res.index(wiz3) < res.index(wiz2) 
+            or res.index(wiz3) < res.index(wiz1) and res.index(wiz3) > res.index(wiz2):
+                return False
+    return True
+
+
+def solve(num_wizards, num_constraints, wizards, constraints):
+    """
+    Write your algorithm here.
+    Input:
+        num_wizards: Number of wizards
+        num_constraints: Number of constraints
+        wizards: An array of wizard names, in no particular order
+        constraints: A 2D-array of constraints, 
+                     where constraints[0] may take the form ['A', 'B', 'C']
+
+    Output:
+        An array of wizard names in the ordering your algorithm returns
+    """
     d = {}
     age = {}
     index = 0
     for wizard in wizards:
         age[wizard] = index
-        index++
+        index+=1
         d[wizard] = [[]]
     q = queue.Queue()
     for constraint in constraints:
