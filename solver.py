@@ -11,47 +11,48 @@ import time
 def cost(solution, constraints):
     return validator(solution, constraints)
 
+#Move a randomly-selected wizard to a random location in the ordering
 def neighbor(solution):
     temp = copy.deepcopy(solution)
     wizToMove = temp.pop(random.randrange(len(temp)))
     temp.insert(random.randrange(len(temp)), wizToMove)
     return temp
 
+#The probability of accepting a sampled ordering.
 def acceptance_probability(old_cost, new_cost, T):
     if new_cost < old_cost:
         return 1.0
     else:
         return math.exp((old_cost - new_cost) / T)
 
-
+#Simulated Annealing main function
 def anneal(num_wizards, num_constraints, wizards, constraints):
     ageDict = {}
     startTime = time.time()
     random.shuffle(wizards)
     solution = wizards
     old_cost = cost(solution, constraints)
-    new_cost = None
+    new_cost = num_constraints
     T = 1.0
     T_min = 0.0001
     alpha = 0.9
     while T > T_min:
         currTime = time.time()
-        if currTime - startTime > num_wizards*3:
-            print new_cost
-            return None
+        if currTime - startTime > num_wizards*2:
+            return wizards, old_cost
         i = 1
-        while i <= 6000:
+        while i <= 9000:
             new_solution = neighbor(solution)
             new_cost = cost(new_solution, constraints)
             if new_cost == 0:
-                return new_solution
+                return new_solution, new_cost
             ap = acceptance_probability(old_cost, new_cost, T)
             if ap > random.random():
                 solution = new_solution
                 old_cost = new_cost
             i += 1
         T = T*alpha
-    return solution
+    return solution, old_cost
 
 def validator(wizards, constraints):
     count = 0
@@ -84,10 +85,12 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-    ret = None
-    while ret is None:
+    ret = wizards
+    cost = num_constraints
+    while cost > 0:
         print 'attempt'
-        ret = anneal(num_wizards, num_constraints, wizards, constraints)
+        print cost
+        ret, cost = anneal(num_wizards, num_constraints, ret, constraints)
     return ret
 
 """
