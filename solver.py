@@ -25,6 +25,7 @@ def acceptance_probability(old_cost, new_cost, T):
 
 
 def anneal(num_wizards, num_constraints, wizards, constraints):
+    ageDict = {}
     startTime = time.time()
     random.shuffle(wizards)
     solution = wizards
@@ -50,7 +51,6 @@ def anneal(num_wizards, num_constraints, wizards, constraints):
                 old_cost = new_cost
             i += 1
         T = T*alpha
-    print currTime - startTime
     return solution
 
 def validator(wizards, constraints):
@@ -84,98 +84,11 @@ def solve(num_wizards, num_constraints, wizards, constraints):
     Output:
         An array of wizard names in the ordering your algorithm returns
     """
-<<<<<<< HEAD
     ret = None
     while ret is None:
         print 'attempt'
         ret = anneal(num_wizards, num_constraints, wizards, constraints)
     return ret
-=======
-    res = random.shuffle(wizards)
-    neighbors = [[]]
-    cost = 0
-    while !validate(res):
-        for c in constraints:
-            wiz1 = c[0]
-            wiz2 = c[1]
-            wiz3 = c[2]
-            if res.index(wiz3) > res.index(wiz1) and res.index(wiz3) < res.index(wiz2):
-                cost += 1
-            else:
-
-            elif res.index(wiz3) < res.index(wiz1) and res.index(wiz3) > res.index(wiz2):
-                cost += 1
-    return res
-
-def validate(ordering, constraints):
-    for c in constraints:
-        wiz1 = c[0]
-        wiz2 = c[1]
-        wiz3 = c[2]
-        if res.index(wiz3) > res.index(wiz1) and res.index(wiz3) < res.index(wiz2) 
-            or res.index(wiz3) < res.index(wiz1) and res.index(wiz3) > res.index(wiz2):
-                return False
-    return True
-
-
-def solve(num_wizards, num_constraints, wizards, constraints):
-    """
-    Write your algorithm here.
-    Input:
-        num_wizards: Number of wizards
-        num_constraints: Number of constraints
-        wizards: An array of wizard names, in no particular order
-        constraints: A 2D-array of constraints, 
-                     where constraints[0] may take the form ['A', 'B', 'C']
-
-    Output:
-        An array of wizard names in the ordering your algorithm returns
-    """
-    d = {}
-    age = {}
-    index = 0
-    for wizard in wizards:
-        age[wizard] = index
-        index+=1
-        d[wizard] = [[]]
-    q = queue.Queue()
-    for constraint in constraints:
-        w1 = constraint[0]
-        w2 = constraint[1]
-        w3 = constraint[2]
-        d[w1].append(constraint)
-        d[w2].append(constraint)
-        d[w3].append(constraint)
-        q.put(constraint)
-    while not q.empty():
-        constraint = q.pop()
-        enforce = true
-        w1 = constraint[0]
-        w2 = constraint[1]
-        w3 = constraint[2]
-        if age[w1] < age[w2]:
-            if age[w3] > age[w1] and age[w3] < age[w2]:
-                enforce = false
-        else:
-            if age[w3] < age[w1] and age[w3] > age[w2]:
-                enforce = false
-
-        if enforce is false:
-            wizToSwap = random.choice([w1, w2])
-            temp = age[w3]
-            age[w3] = age[wizToSwap]
-            age[wizToSwap] = temp
-            w3Constraints = d[w3]
-            wizToSwapConstraints = d[wizToSwap] 
-            for c in wizToSwapConstraints:
-                if c not in queue:
-                    queue.add(c)
-            for c in w3Constraints:
-                if c not in queue:
-                    queue.add(c)
-    sorted(d, key=d.get)
-    return d.keys()
->>>>>>> 34fa090c9390fec9814a0eb72dda2a1e2eb7534b
 
 """
 ======================================================================
